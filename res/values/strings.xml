@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">DriverApp</string>
+    <string name="action_settings">Settings</string>
+
+    <string name="userNameTextView">User Name : </string>
+    <string name="passwordTextView">Password : </string>
+    <string name="loginButton">Login</string>
+    
+</resources>
