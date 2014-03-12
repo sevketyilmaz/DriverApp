@@ -3,6 +3,7 @@ package com.taximobile.zdriverapp.background;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.location.Location;
 import android.location.LocationManager;
 
 /*Singleton class
@@ -11,6 +12,7 @@ public class PositionManager {
 	public static final String ACTION_LOCATION = "com.taximobile.zdriverapp.ACTION_LOCATION";
 	public static final int APP_TYPE_CUSTOMER = 89;
 	public static final int APP_TYPE_DRIVER = 97;
+	public static final String LAST_KNOWN = "lastKnownLocation";
 	private static final long MIN_TIME_INTERVAL = 0;
 	
 	private static PositionManager _positionManager;
@@ -39,13 +41,19 @@ public class PositionManager {
 	}
 	
 	public void startLocationUpdates(){
+		String provider = LocationManager.GPS_PROVIDER;
+		
+		//get the last known location and broadcast it
+		Location lastKnown = _locationManager.getLastKnownLocation(provider);
+		if(lastKnown != null){
+			broadcastLocation(lastKnown);
+		}
+		
 		if(_appType == APP_TYPE_CUSTOMER){
-			String provider = LocationManager.GPS_PROVIDER;
 			PendingIntent pi = getLocationPendingIntent(true);
 			_locationManager.requestSingleUpdate(provider, pi);
 			
 		}else if(_appType == APP_TYPE_DRIVER){
-			String provider = LocationManager.GPS_PROVIDER;
 			PendingIntent pi = getLocationPendingIntent(true);
 			_locationManager.requestLocationUpdates(provider, MIN_TIME_INTERVAL, 0, pi);
 		}
@@ -61,5 +69,11 @@ public class PositionManager {
 	
 	public boolean isTrackingPosition(){
 		return getLocationPendingIntent(false) != null;
+	}
+	
+	private void broadcastLocation(Location location){
+		Intent bIntent = new Intent(ACTION_LOCATION);
+		bIntent.putExtra(LAST_KNOWN, location);
+		_appContext.sendBroadcast(bIntent);
 	}
 }

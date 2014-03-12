@@ -17,12 +17,16 @@ public class PositionReceiver extends BroadcastReceiver{
 		 * LocationManager broadcast a new PendingIntent when location changed occurs,
 		 * this intent has an extra with Location value
 		*/
-		Location loc = (Location) intent.getParcelableExtra(LocationManager.KEY_LOCATION_CHANGED);
+		Location loc = null;
+		if(intent.hasExtra(PositionManager.LAST_KNOWN)){
+			loc =(Location) intent.getParcelableExtra(PositionManager.LAST_KNOWN);
+		}else if(intent.hasExtra(LocationManager.KEY_LOCATION_CHANGED)){
+			loc = (Location) intent.getParcelableExtra(LocationManager.KEY_LOCATION_CHANGED);
+		}
 		if(loc != null){
 			onLocationReceived(context, loc);
 			return;
 		}
-		
 		//if you get here, something else happened
 		if(intent.hasExtra(LocationManager.KEY_PROVIDER_ENABLED)){
 			boolean enabled = intent.getBooleanExtra(LocationManager.KEY_PROVIDER_ENABLED, false);
