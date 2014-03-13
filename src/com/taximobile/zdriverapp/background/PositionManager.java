@@ -5,15 +5,19 @@ import android.content.Context;
 import android.content.Intent;
 import android.location.Location;
 import android.location.LocationManager;
+import android.util.Log;
 
 /*Singleton class
  * */
 public class PositionManager {
+	private static final String TAG = "PositionManager";
 	public static final String ACTION_LOCATION = "com.taximobile.zdriverapp.ACTION_LOCATION";
 	public static final int APP_TYPE_CUSTOMER = 89;
 	public static final int APP_TYPE_DRIVER = 97;
 	public static final String LAST_KNOWN = "lastKnownLocation";
 	private static final long MIN_TIME_INTERVAL = 0;
+	
+	public static final String TEST_PROVIDER = "TEST_PROVIDER";
 	
 	private static PositionManager _positionManager;
 	private Context _appContext;
@@ -42,6 +46,13 @@ public class PositionManager {
 	
 	public void startLocationUpdates(){
 		String provider = LocationManager.GPS_PROVIDER;
+		
+		//if you have the TEST_PROVIDER and enabled, use it
+		if(_locationManager.getProvider(TEST_PROVIDER) != null &&
+				_locationManager.isProviderEnabled(TEST_PROVIDER)){
+			provider = TEST_PROVIDER;
+		}
+		Log.d(TAG, "Using provider " + provider);
 		
 		//get the last known location and broadcast it
 		Location lastKnown = _locationManager.getLastKnownLocation(provider);
