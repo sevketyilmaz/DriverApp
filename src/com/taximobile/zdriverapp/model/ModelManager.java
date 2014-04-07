@@ -11,12 +11,16 @@ public class ModelManager {
 	private LoginModel _loginModel;
 	private Driver _driver;
 	private OnlineVehicle _onlineVehicle;
+	private Customer _customer;
+	private Job _job;
 	
 	//constructor
 	private ModelManager(){
 		_loginModel = new LoginModel();
 		_driver = new Driver();
 		_onlineVehicle = new OnlineVehicle();
+		_customer = new Customer();
+		_job = new Job();
 	}
 	
 	public static ModelManager Get(){
@@ -49,5 +53,21 @@ public class ModelManager {
 	
 	public void setOnlineVehicle(OnlineVehicle onlineVehicle){
 		_onlineVehicle = onlineVehicle;
+	}
+	
+	public Customer getCustomer(){
+		return _customer;
+	}
+	
+	public void setCustomer(Customer customer){
+		_customer = customer;
+	}
+	
+	public Job getJob(){
+		return _job;
+	}
+	
+	public void setJob(Job job){
+		_job = job;
 	}
 }
