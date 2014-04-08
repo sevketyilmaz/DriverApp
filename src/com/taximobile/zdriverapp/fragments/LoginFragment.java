@@ -2,20 +2,20 @@ package com.taximobile.zdriverapp.fragments;
 
 import android.app.Fragment;
 import android.app.FragmentManager;
+import android.content.Context;
 import android.os.Bundle;
 import android.text.Editable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 
 import com.taximobile.zdriverapp.R;
 import com.taximobile.zdriverapp.background.LogOnAsyncTask;
 import com.taximobile.zdriverapp.model.*;
-import com.taximobile.zdriverapp.model.LoginModel;
-import com.taximobile.zdriverapp.model.ModelManager;
 
 public class LoginFragment extends Fragment implements LogOnAsyncTask.ILogOnReadyListener{
 	private static final String TAG = "LoginFragment";
@@ -24,11 +24,13 @@ public class LoginFragment extends Fragment implements LogOnAsyncTask.ILogOnRead
 	private Button loginButton;
 	
 	private FragmentManager fm;
+	InputMethodManager inMgr;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
+		inMgr = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
 	}
 	
 	@Override
@@ -63,6 +65,9 @@ public class LoginFragment extends Fragment implements LogOnAsyncTask.ILogOnRead
 	public void LogOnReady(){
 		Driver driver = ModelManager.Get().getDriver();
 		if(driver != null){
+			//remove the softkeypad
+			inMgr.hideSoftInputFromWindow(getActivity().getCurrentFocus().getWindowToken(), 0);
+			
 			fm = getFragmentManager();
 			fm.beginTransaction()
 				.replace(R.id.fragmentContainer, new ScreenFragment())

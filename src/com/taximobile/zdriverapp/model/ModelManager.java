@@ -16,11 +16,11 @@ public class ModelManager {
 	
 	//constructor
 	private ModelManager(){
-		_loginModel = new LoginModel();
-		_driver = new Driver();
-		_onlineVehicle = new OnlineVehicle();
-		_customer = new Customer();
-		_job = new Job();
+//		_loginModel = new LoginModel();
+//		_driver = new Driver();
+//		_onlineVehicle = new OnlineVehicle();
+//		_customer = new Customer();
+//		_job = new Job();
 	}
 	
 	public static ModelManager Get(){

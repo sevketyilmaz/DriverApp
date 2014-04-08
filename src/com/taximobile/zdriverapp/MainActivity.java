@@ -12,7 +12,8 @@ import com.taximobile.zdriverapp.model.ModelManager;
 
 public class MainActivity extends Activity {
 	public static final String TM_BASE_URL = "http://svktylmz-001-site1.myasp.net/";
-	public static final String TM_LOGON_DRIVER = TM_BASE_URL + "api/Logon/drivervehicle";
+	public static final String TM_LOGON_DRIVER = TM_BASE_URL + "api/Logon/drivervehicle"; //POST
+	public static final String TM_POSITION_PUSH = TM_BASE_URL + "api/onlinevehicle"; //PUT
 
 
 	@Override

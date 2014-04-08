@@ -15,6 +15,7 @@ public class OnlineVehicle {
 	public OnlineVehicle()
 	{
 		setLastUpdate(System.currentTimeMillis());
+		setStatusId(1);//create as OnDuty 
 	}
 
 	public OnlineVehicle(int vehicleId, int driverId, int statusId, double lat,
