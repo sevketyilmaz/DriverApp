@@ -27,6 +27,25 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:text="@string/numberPlateTextView" />
+
+        <EditText
+            android:id="@+id/numberPlateEditText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ems="10" >
+
+        </EditText>
+
+    </TableRow>
+
+    <TableRow
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:text="@string/passwordTextView" />
 
         <EditText
@@ -38,7 +57,7 @@
         </EditText>
 
     </TableRow>
-
+    
     <TableRow
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" >

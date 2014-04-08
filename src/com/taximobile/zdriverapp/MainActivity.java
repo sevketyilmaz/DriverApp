@@ -8,13 +8,19 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.taximobile.zdriverapp.fragments.LoginFragment;
+import com.taximobile.zdriverapp.model.ModelManager;
 
 public class MainActivity extends Activity {
+	public static final String TM_BASE_URL = "http://svktylmz-001-site1.myasp.net/";
+	public static final String TM_LOGON_DRIVER = TM_BASE_URL + "api/Logon/drivervehicle";
+
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+
+//		ModelManager mm = ModelManager.Get();
 		
 		FragmentManager fm = getFragmentManager();
 		Fragment fragment  = fm.findFragmentById(R.id.fragmentContainer);

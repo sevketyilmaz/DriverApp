@@ -41,6 +41,16 @@ public class Driver {
 		setDriverLicence(driverLicence);
 		setLastUpdate(System.currentTimeMillis());
 	}
+	
+	public Driver(int driverId, String driverName, String email,
+			String password, String gsm, String driverLicence,
+			int vehicleId, String numberPlate){
+		
+		this(driverId, driverName, email, password, gsm, driverLicence);
+		
+		setVehicleId(vehicleId);
+		setNumberPlate(numberPlate);
+	}
 
 	//getters setters
 	public int getDriverId() {

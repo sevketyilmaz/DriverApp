@@ -25,7 +25,7 @@ public class ModelManager {
 	
 	public static ModelManager Get(){
 		if(_modelManager == null)
-			return new ModelManager();
+			_modelManager = new ModelManager();
 		
 		return _modelManager;
 	}
