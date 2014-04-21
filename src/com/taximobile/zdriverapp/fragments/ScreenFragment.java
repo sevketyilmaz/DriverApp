@@ -16,12 +16,13 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.taximobile.zdriverapp.R;
+import com.taximobile.zdriverapp.background.JobControlAsyncTask;
 import com.taximobile.zdriverapp.background.PositionManager;
 import com.taximobile.zdriverapp.background.PositionPushAsyncTask;
 import com.taximobile.zdriverapp.background.PositionReceiver;
 import com.taximobile.zdriverapp.model.*;
 
-public class ScreenFragment extends Fragment{
+public class ScreenFragment extends Fragment implements JobControlAsyncTask.IJobControlReadyListener{
 	private static final String TAG = "ScreenFragment";
 	
 	private PositionManager _positionManager;
@@ -29,13 +30,20 @@ public class ScreenFragment extends Fragment{
 	
 	private Switch dutySwitch;
 	private TextView txtView;
+	private TextView txtLoc;
 	
 	private BroadcastReceiver _positionReceiver = new PositionReceiver(){
 		@Override
 		protected void onLocationReceived(Context context, Location loc) {
-			if(isVisible() && loc != null){
-				//async task i calistir
-				positionPush(loc);
+			if(isVisible() && loc != null){				
+				//async tasklari calistir
+				jobControl();
+				
+				
+				positionPush(loc); //push the position and update onlineVehicle model location
+				
+
+				
 			}
 		};
 		
@@ -59,6 +67,7 @@ public class ScreenFragment extends Fragment{
 		
 		dutySwitch = (Switch) view.findViewById(R.id.dutySwitch);
 		txtView = (TextView) view.findViewById(R.id.txtView);
+		txtLoc = (TextView) view.findViewById(R.id.txtView2);
 		
 		//set switch to on
 		dutySwitch.setChecked(true);
@@ -83,6 +92,19 @@ public class ScreenFragment extends Fragment{
 		});
 		
 		return view;
+	}
+	
+	@Override
+	public void JobControlReady(int jobStatus) {
+		// TODO Auto-generated method stub
+		if(jobStatus == 1){ // there is a new job
+			Toast.makeText(getActivity(), "There is a new job !! create accept/deline", Toast.LENGTH_LONG).show();
+			//TODO create a accept decline and after that synchronize the OnlineVehicleStatus
+			
+		}else if(jobStatus == 2){// there is no job
+			
+		}
+		
 	}
 	
 	@Override
@@ -113,9 +135,21 @@ public class ScreenFragment extends Fragment{
 		//Driver driver = new Driver(2, 2);
 		//PositionPushAsyncTask task = new PositionPushAsyncTask(getActivity(), this, loc);
 		//task.execute(_driver);
+		String location = String.format("Latitude= %.3f : Longitude= %.3f", loc.getLatitude(), loc.getLongitude());
+		txtLoc.setText(location);
 		
 		PositionPushAsyncTask task = new PositionPushAsyncTask(getActivity(), loc);
 		task.execute();
 	}
+	
+	private void jobControl(){
+		//it has a callback method JobControlReady()
+		if(ModelManager.Get().getOnlineVehicle().getStatusId() == OnlineVehicle.STATUS_AVAILABLE){
+		JobControlAsyncTask task = new JobControlAsyncTask(getActivity(), this);
+		task.execute();
+		}
+	}
+
+
 
 }

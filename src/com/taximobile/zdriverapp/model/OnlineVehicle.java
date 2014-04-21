@@ -11,11 +11,14 @@ public class OnlineVehicle {
 	private Timestamp _lastUpdate;
 	private int _jobId;
 	
+	public static final int STATUS_AVAILABLE = 1;
+	public static final int STATUS_BUSY = 2;
+	
 	//constructor
 	public OnlineVehicle()
 	{
 		setLastUpdate(System.currentTimeMillis());
-		setStatusId(1);//create as OnDuty 
+		setStatusId(STATUS_AVAILABLE);//create as OnDuty 
 	}
 
 	public OnlineVehicle(int vehicleId, int driverId, int statusId, double lat,

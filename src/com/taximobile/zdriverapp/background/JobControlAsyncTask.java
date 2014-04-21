@@ -1,16 +1,20 @@
 package com.taximobile.zdriverapp.background;
 
+import java.io.IOException;
+
+import org.apache.http.client.ClientProtocolException;
+
+import com.taximobile.zdriverapp.model.ModelManager;
+
 import android.app.Fragment;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.AsyncTask;
 
-public class JobControlAsyncTask extends AsyncTask<Void, String, Integer>{
+public class JobControlAsyncTask extends AsyncTask<Void, String, Void>{
 	private static final String TAG = "JobControlAsyncTask";
-	private static int JOB_EXIST = 1;
-	private static int JOB_NONE = 2;
 	
-	private Context _context;
+	private Context _context; //activity context
 	private ProgressDialog _progressDialog;
 	
 	public interface IJobControlReadyListener{
@@ -31,19 +35,28 @@ public class JobControlAsyncTask extends AsyncTask<Void, String, Integer>{
 	}
 	
 	@Override
-	protected Integer doInBackground(Void... params) {
+	protected Void doInBackground(Void... params) {
 		publishProgress("Checking the job status");
 		
+		try{
+			NetworkManager.JobControl(); //onlineVehicle control
+		}catch(ClientProtocolException e){
+			e.printStackTrace();
+		}catch(IOException e){
+			e.printStackTrace();
+		}
 		
 		return null;
 	}
 	
 	@Override
-	protected void onPostExecute(Integer result) {
+	protected void onPostExecute(Void result) {
 		super.onPostExecute(result);
 		_progressDialog.cancel();
-		//TODO call the callback
-		
+
+		//TODO call the callback in ScreenFragment
+		int status = (ModelManager.Get().getJob() == null) ? 2 : 1; 
+		_listener.JobControlReady(status);//result = job status : (1-JOB_EXIST ; 2-JOB_NONE)
 	}
 	
 	@Override

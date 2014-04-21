@@ -4,12 +4,15 @@ import java.io.IOException;
 
 import org.apache.http.client.ClientProtocolException;
 
-import com.taximobile.zdriverapp.model.*;
-
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.location.Location;
 import android.os.AsyncTask;
+import android.os.SystemClock;
+import android.util.Log;
+
+import com.taximobile.zdriverapp.model.Driver;
+import com.taximobile.zdriverapp.model.ModelManager;
 
 public class PositionPushAsyncTask extends AsyncTask<Void, String, Void>{
 	private static final String TAG = "PositionPushAsyncTask";
@@ -32,7 +35,7 @@ public class PositionPushAsyncTask extends AsyncTask<Void, String, Void>{
 	}
 	
 	@Override
-	protected Void doInBackground(Void... params) {
+	protected Void doInBackground(Void... params) {		
 		_driver = ModelManager.Get().getDriver();
 		
 		publishProgress("Updating the OnlineVehicle location");

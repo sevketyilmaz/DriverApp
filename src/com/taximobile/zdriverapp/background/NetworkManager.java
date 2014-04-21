@@ -7,6 +7,8 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpDelete;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.impl.client.DefaultHttpClient;
@@ -88,6 +90,11 @@ public class NetworkManager {
 			Driver d = new Driver(driverId, driverName, email, password, gsm, driverLicence, vehicleId, numberPlate);
 			
 			ModelManager.Get().setDriver(d);
+			if(ModelManager.Get().getOnlineVehicle() == null){
+				ModelManager.Get().setOnlineVehicle(new OnlineVehicle());
+				ModelManager.Get().getOnlineVehicle().setDriverId(driverId);
+				ModelManager.Get().getOnlineVehicle().setVehicleId(vehicleId);
+			}
 			return;
 			
 		} catch (Exception e) {
@@ -102,9 +109,12 @@ public class NetworkManager {
 			Driver driver = ModelManager.Get().getDriver();
 			
 			if(ModelManager.Get().getOnlineVehicle() == null)
-				ModelManager.Get().setOnlineVehicle(new OnlineVehicle());
+				ModelManager.Get().setOnlineVehicle(new OnlineVehicle());//sets status id default to 1;
+			
 			
 			ModelManager.Get().getOnlineVehicle().setLastUpdate(System.currentTimeMillis());
+			ModelManager.Get().getOnlineVehicle().setLat(loc.getLatitude());
+			ModelManager.Get().getOnlineVehicle().setLng(loc.getLongitude());
 			//for testing!!!!!!!!!!
 			//ModelManager.Get().getJob().setJobId(1);
 			
@@ -146,4 +156,73 @@ public class NetworkManager {
 		}
 		
 	}
+
+	public static void JobControl() throws ClientProtocolException, IOException{ //normally gets online vehicle
+		try {
+			OnlineVehicle ov = ModelManager.Get().getOnlineVehicle();
+			
+			//Create client, Post request and parameter list
+			DefaultHttpClient httpClient = new DefaultHttpClient();
+			HttpPost httpPost = new HttpPost(MainActivity.TM_JOB_CONTROL);
+			
+			ArrayList<BasicNameValuePair> parameters = new ArrayList<BasicNameValuePair>();
+			
+			parameters.add(new BasicNameValuePair("VehicleId", String.valueOf(ov.getVehicleId())));
+			parameters.add(new BasicNameValuePair("DriverId", String.valueOf(ov.getDriverId())));
+			parameters.add(new BasicNameValuePair("StatusId", String.valueOf(ov.getStatusId())));
+			
+			httpPost.setEntity(new UrlEncodedFormEntity(parameters));
+			
+			HttpResponse httpResponse = httpClient.execute(httpPost);
+			
+			//if response is ok
+			if(httpResponse.getStatusLine().getStatusCode() == 200){
+				//get response content
+				HttpEntity httpEntity = httpResponse.getEntity();
+				
+				//convert the entity {resulting page} to string and parse it
+				String content = EntityUtils.toString(httpEntity, "UTF-8");
+				
+				Log.d(TAG, "content Job Control : " + content);
+				if (content.equals("null")) {
+					ModelManager.Get().setJob(null);
+					return;
+				}
+				parseTheJobControlContent(content);	//and update job object
+				
+			}else{
+				ModelManager.Get().setJob(null);
+				return;
+			}
+			
+		} catch (Exception e) {
+			Log.e(TAG, "Error occured while JobControlling " + e);
+			return;
+		}
+		
+	}
+
+	private static void parseTheJobControlContent(String content){
+		try {
+			JSONObject JobControlJO = new JSONObject(content);
+			
+			int jobId = Integer.parseInt(JobControlJO.getString("JobId"));
+			int driverId = Integer.parseInt(JobControlJO.getString("DriverId"));
+			int vehicleId = Integer.parseInt(JobControlJO.getString("VehicleId"));
+			int customerId = Integer.parseInt(JobControlJO.getString("CustomerId"));
+			String requestDate = JobControlJO.getString("RequestDate");
+
+			Job j = new Job(jobId, driverId, vehicleId, customerId, requestDate);
+			ModelManager.Get().setJob(j);
+			return;
+			
+		} catch (Exception e) {
+			Log.e(TAG, "Error occured while dowbloading", e);
+			ModelManager.Get().setJob(null);
+			return;
+		}
+	}
+
+	
+
 }

@@ -9,6 +9,9 @@ public class Job {
 	private int _customerId;
 	private Timestamp _requestDate;
 	
+	private static final int JOB_EXIST = 1;
+	private static final int JOB_NONE = 2;
+	
 	//constructor
 	public Job(){
 		setRequestDate(System.currentTimeMillis());
@@ -70,12 +73,21 @@ public class Job {
 	}
 
 	public void setRequestDate(String requestDate) {
-		String s = requestDate.replace('T', ' ');
-		_requestDate = Timestamp.valueOf(s);
+		if(requestDate != null){
+			String s = requestDate.replace('T', ' ');
+			_requestDate = Timestamp.valueOf(s);
+		}else{
+			_requestDate = new Timestamp(System.currentTimeMillis());
+		}
 	}
 	
 	public void setRequestDate(Long requestDate){
-		_requestDate = new Timestamp(requestDate);
+		if(requestDate != null){
+			_requestDate = new Timestamp(requestDate);
+		}else{
+			_requestDate = new Timestamp(System.currentTimeMillis());
+		}
+		
 	}
 	
 	
