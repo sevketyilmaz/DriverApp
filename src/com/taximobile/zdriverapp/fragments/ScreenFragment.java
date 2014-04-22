@@ -1,14 +1,23 @@
 package com.taximobile.zdriverapp.fragments;
 
+import android.app.Dialog;
 import android.app.Fragment;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.IntentFilter;
+import android.graphics.Color;
 import android.location.Location;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
+import android.media.MediaPlayer.OnCompletionListener;
+import android.media.SoundPool;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.Switch;
@@ -20,13 +29,23 @@ import com.taximobile.zdriverapp.background.JobControlAsyncTask;
 import com.taximobile.zdriverapp.background.PositionManager;
 import com.taximobile.zdriverapp.background.PositionPushAsyncTask;
 import com.taximobile.zdriverapp.background.PositionReceiver;
-import com.taximobile.zdriverapp.model.*;
+import com.taximobile.zdriverapp.model.Driver;
+import com.taximobile.zdriverapp.model.ModelManager;
+import com.taximobile.zdriverapp.model.OnlineVehicle;
 
 public class ScreenFragment extends Fragment implements JobControlAsyncTask.IJobControlReadyListener{
 	private static final String TAG = "ScreenFragment";
 	
 	private PositionManager _positionManager;
 	private Driver _driver; //ModelManager.Get().getDriver()
+	
+	View view;
+	Dialog d;
+	Button accept, decline;
+	TextView txtCountDown;
+	MediaPlayer mp;
+	SoundPool sp;
+	final MyCounter timer = new MyCounter(6000, 1000);
 	
 	private Switch dutySwitch;
 	private TextView txtView;
@@ -63,11 +82,13 @@ public class ScreenFragment extends Fragment implements JobControlAsyncTask.IJob
 	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		View view = inflater.inflate(R.layout.fragment_screen, container, false);
+		view = inflater.inflate(R.layout.fragment_screen, container, false);
 		
 		dutySwitch = (Switch) view.findViewById(R.id.dutySwitch);
 		txtView = (TextView) view.findViewById(R.id.txtView);
-		txtLoc = (TextView) view.findViewById(R.id.txtView2);
+		txtLoc = (TextView) view.findViewById(R.id.txtLoc);
+		
+		
 		
 		//set switch to on
 		dutySwitch.setChecked(true);
@@ -96,11 +117,13 @@ public class ScreenFragment extends Fragment implements JobControlAsyncTask.IJob
 	
 	@Override
 	public void JobControlReady(int jobStatus) {
-		// TODO Auto-generated method stub
 		if(jobStatus == 1){ // there is a new job
-			Toast.makeText(getActivity(), "There is a new job !! create accept/deline", Toast.LENGTH_LONG).show();
 			//TODO create a accept decline and after that synchronize the OnlineVehicleStatus
-			
+			/*
+			 * Dialog for accept / decline job 
+			 * */
+			createDialog();
+
 		}else if(jobStatus == 2){// there is no job
 			
 		}
@@ -150,6 +173,72 @@ public class ScreenFragment extends Fragment implements JobControlAsyncTask.IJob
 		}
 	}
 
+	public class MyCounter extends CountDownTimer{
+		public MyCounter(long millisInFuture, long countDownInterval) {
+			super(millisInFuture, countDownInterval);
+		}
 
+		@Override
+		public void onFinish() {
+			d.dismiss();
+		}
+
+		@Override
+		public void onTick(long millisUntilFinished) {
+			txtCountDown.playSoundEffect(2);
+			txtCountDown.setText("Timer: " + (millisUntilFinished/1000)+ " seconds remaining");	
+		}		
+	}
+	
+	private void createDialog() {
+		d = new Dialog(getActivity());
+		
+		View vLoad = LayoutInflater.from(getActivity()).inflate(R.layout.job_accept_decline, null);
+		d.setContentView(vLoad);
+		
+		txtCountDown = (TextView) d.findViewById(R.id.txtCountDown);
+		accept = (Button) d.findViewById(R.id.acceptButton);
+		decline = (Button) d.findViewById(R.id.declineButton);
+		
+		d.setTitle("Accept / Decline job");
+		d.setCancelable(false);
+		
+		txtCountDown.setTextColor(Color.RED);
+		
+		/*sound */
+		sp = new SoundPool(5, AudioManager.STREAM_MUSIC, 0);
+		int iTmp = sp.load(getActivity(), R.raw.job_alert, 1);
+		sp.play(iTmp, 1, 1, 0, 0, 1);
+		
+		mp = MediaPlayer.create(getActivity(), R.raw.job_alert);
+		mp.setOnCompletionListener(new OnCompletionListener() {
+			@Override
+			public void onCompletion(MediaPlayer arg0) {
+				mp.release();						
+			}
+		});
+		mp.start();
+		/*sound end*/
+		
+		timer.start();
+		
+		accept.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				timer.cancel();
+				d.dismiss();
+			}
+		});
+		
+		decline.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				timer.cancel();
+				d.dismiss();
+			}
+		});
+		
+		d.show();
+	}
 
 }
