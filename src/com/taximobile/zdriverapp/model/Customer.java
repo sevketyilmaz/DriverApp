@@ -15,6 +15,13 @@ public class Customer {
 	public Customer(){
 		setLastUpdate(System.currentTimeMillis());
 	}
+	
+	public Customer(int customerId, double lat, double lng){
+		this();
+		setCustomerId(customerId);
+		setLat(lat);
+		setLng(lng);
+	}
 
 	public Customer(int customerId, String customerName, String email, String gsm,
 				double lat, double lng){

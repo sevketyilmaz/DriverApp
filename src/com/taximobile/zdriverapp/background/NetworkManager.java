@@ -7,8 +7,6 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.HttpDelete;
-import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.impl.client.DefaultHttpClient;
@@ -20,6 +18,7 @@ import android.location.Location;
 import android.util.Log;
 
 import com.taximobile.zdriverapp.MainActivity;
+import com.taximobile.zdriverapp.model.Customer;
 import com.taximobile.zdriverapp.model.Driver;
 import com.taximobile.zdriverapp.model.Job;
 import com.taximobile.zdriverapp.model.LoginModel;
@@ -59,7 +58,7 @@ public class NetworkManager {
 					ModelManager.Get().setDriver(null);
 					return;
 				}
-				parseTheContent(content);	
+				parseTheContent(content);
 				
 			}else{
 				ModelManager.Get().setDriver(null);
@@ -94,6 +93,9 @@ public class NetworkManager {
 				ModelManager.Get().setOnlineVehicle(new OnlineVehicle());
 				ModelManager.Get().getOnlineVehicle().setDriverId(driverId);
 				ModelManager.Get().getOnlineVehicle().setVehicleId(vehicleId);
+			}else{
+				ModelManager.Get().getOnlineVehicle().setDriverId(driverId);
+				ModelManager.Get().getOnlineVehicle().setVehicleId(vehicleId);
 			}
 			return;
 			
@@ -115,6 +117,10 @@ public class NetworkManager {
 			ModelManager.Get().getOnlineVehicle().setLastUpdate(System.currentTimeMillis());
 			ModelManager.Get().getOnlineVehicle().setLat(loc.getLatitude());
 			ModelManager.Get().getOnlineVehicle().setLng(loc.getLongitude());
+			ModelManager.Get().getOnlineVehicle().setDriverId(driver.getDriverId());
+			ModelManager.Get().getOnlineVehicle().setVehicleId(driver.getVehicleId());
+			if(ModelManager.Get().getJob() != null)
+				ModelManager.Get().getOnlineVehicle().setJobId(ModelManager.Get().getJob().getJobId());
 			//for testing!!!!!!!!!!
 			//ModelManager.Get().getJob().setJobId(1);
 			
@@ -188,7 +194,7 @@ public class NetworkManager {
 					ModelManager.Get().setJob(null);
 					return;
 				}
-				parseTheJobControlContent(content);	//and update job object
+				parseTheJobControlContent(content);	//and update job,customer object
 				
 			}else{
 				ModelManager.Get().setJob(null);
@@ -211,9 +217,22 @@ public class NetworkManager {
 			int vehicleId = Integer.parseInt(JobControlJO.getString("VehicleId"));
 			int customerId = Integer.parseInt(JobControlJO.getString("CustomerId"));
 			String requestDate = JobControlJO.getString("RequestDate");
+			
+			double customerLat = Double.parseDouble(JobControlJO.getString("PickupLat"));
+			double customerLng = Double.parseDouble(JobControlJO.getString("PickupLng"));
 
 			Job j = new Job(jobId, driverId, vehicleId, customerId, requestDate);
 			ModelManager.Get().setJob(j);
+			
+			if (ModelManager.Get().getCustomer() == null){
+				Customer c = new Customer(customerId, customerLat, customerLng);
+				ModelManager.Get().setCustomer(c);
+			}else{
+				ModelManager.Get().getCustomer().setCustomerId(customerId);
+				ModelManager.Get().getCustomer().setLat(customerLat);
+				ModelManager.Get().getCustomer().setLng(customerLng);
+			}			
+			
 			return;
 			
 		} catch (Exception e) {
@@ -223,6 +242,41 @@ public class NetworkManager {
 		}
 	}
 
-	
+	public static void AcceptDecline(int acceptDecline) throws ClientProtocolException, IOException{ //normally gets online vehicle
+		try {
+			OnlineVehicle ov = ModelManager.Get().getOnlineVehicle();
+			Driver d = ModelManager.Get().getDriver();
+			
+			//Create a client, post request and parameters array list
+			DefaultHttpClient httpClient = new DefaultHttpClient();
+			HttpPost httpPost = new HttpPost(MainActivity.TM_JOB_ACCEPT_DECLINE);
+			ArrayList<BasicNameValuePair> parameters = new ArrayList<BasicNameValuePair>();
+			
+			parameters.add(new BasicNameValuePair("VehicleId", String.valueOf(d.getVehicleId())));
+			parameters.add(new BasicNameValuePair("DriverId", String.valueOf(d.getDriverId())));
+			parameters.add(new BasicNameValuePair("Lat", String.valueOf(ov.getLat())));
+			parameters.add(new BasicNameValuePair("Lng", String.valueOf(ov.getLng())));
+			parameters.add(new BasicNameValuePair("LastUpdate", String.valueOf(ov.getLastUpdate().toString())));
+			
+			if(acceptDecline == Job.ACCEPT_JOB){//set statusId =2
+				parameters.add(new BasicNameValuePair("StatusId", String.valueOf(ov.getStatusId())));
+				parameters.add(new BasicNameValuePair("JobId", String.valueOf(ov.getJobId())));
+			}else if(acceptDecline == Job.DECLINE_JOB){//set JobId=null
+				parameters.add(new BasicNameValuePair("StatusId", String.valueOf(ov.getStatusId())));
+				//JobId null
+				parameters.add(new BasicNameValuePair("JobId", "null"));
+			}
+			
+			httpPost.setEntity(new UrlEncodedFormEntity(parameters));
+			
+			//execute the request
+			HttpResponse httpResponse = httpClient.execute(httpPost);
+			
+			return;//return anyway
+		}catch(Exception e){
+			Log.e(TAG, "Error occured while AcceptDecline " + e);
+			return;
+		}
+	}
 
 }

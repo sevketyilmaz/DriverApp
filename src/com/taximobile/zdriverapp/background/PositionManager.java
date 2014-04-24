@@ -15,7 +15,7 @@ public class PositionManager {
 	public static final int APP_TYPE_CUSTOMER = 89;
 	public static final int APP_TYPE_DRIVER = 97;
 	public static final String LAST_KNOWN = "lastKnownLocation";
-	private static final long MIN_TIME_INTERVAL = 10 * 1000; //10 seconds
+	private static final long MIN_TIME_INTERVAL = 30 * 1000; //30 seconds
 	
 	public static final String TEST_PROVIDER = "TEST_PROVIDER";
 	

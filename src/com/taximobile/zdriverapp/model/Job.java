@@ -11,6 +11,8 @@ public class Job {
 	
 	private static final int JOB_EXIST = 1;
 	private static final int JOB_NONE = 2;
+	public static final int ACCEPT_JOB = 1;
+	public static final int DECLINE_JOB = 2;
 	
 	//constructor
 	public Job(){

@@ -15,6 +15,7 @@ public class MainActivity extends Activity {
 	public static final String TM_LOGON_DRIVER = TM_BASE_URL + "api/Logon/drivervehicle"; //POST
 	public static final String TM_POSITION_PUSH = TM_BASE_URL + "api/onlinevehicle"; //PUT
 	public static final String TM_JOB_CONTROL = TM_BASE_URL + "api/job/jobcontrol"; //POST
+	public static final String TM_JOB_ACCEPT_DECLINE = TM_BASE_URL + "api/job/acceptdecline";//POST
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
